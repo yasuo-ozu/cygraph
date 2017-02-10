@@ -117,6 +117,7 @@ cg_token *cg_token_next(cg_env *env) {
 					else if (c == 'f') c = '\f';
 					else if (c == 'n') c = '\n';
 					else if (c == 'r') c = '\r';
+					else if (c == 't') c = '\t';
 					else if (c == 'v') c = '\v';
 					else if (c == '0') c = '\0';
 				}
@@ -177,5 +178,5 @@ void cg_token_dump(cg_env *env, cg_token *token) {
 	if (token->type == TK_STRING) printf("STRING: \"%s\"\n", token->string);
 }
 
-
+void cg_token_
 

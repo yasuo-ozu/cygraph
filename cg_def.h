@@ -1,6 +1,7 @@
 typedef struct cg_env 		cg_env;
 typedef struct cg_file	 	cg_file;
 typedef struct cg_token 	cg_token;
+typedef struct cg_parse		cg_parse;
 
 typedef enum cg_token_type	cg_token_type;
 
@@ -36,3 +37,10 @@ struct cg_token {
 
 };
 
+// cg_graphic.c
+#define cg_graphic void
+
+// cg_parse.c
+struct cg_parse {
+	
+};
