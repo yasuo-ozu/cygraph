@@ -84,6 +84,7 @@ cg_token *cg_token_next(cg_env *env) {
 		}
 		ret->type = TK_INTVAL;
 		ret->intval = intval;
+		ret->dblval = intval;
 		if (c == '.') {
 			long double dblval = (long double) intval, power = 1.0;
 			c = get(env);
@@ -100,6 +101,22 @@ cg_token *cg_token_next(cg_env *env) {
 			}
 			ret->type = TK_DBLVAL;
 			ret->dblval = dblval;
+		}
+		if (base == 10 && (c == 'e' || c == 'E')) {
+			c = get(env);
+			int exponent = 0, pty = 1;
+			if (c == '+' || c == '-') {
+				pty = c == '+' ? 1 : -1;
+				c = get(env);
+			}
+			while ('0' <= c && c <= '9') {
+				exponent = exponent * 10 + c - '0';
+				c = get(env);
+			}
+			while (exponent--) 
+				ret->dblval = pty == 1 ? ret->dblval * 10 : ret->dblval / 10;
+			ret->type = TK_DBLVAL;
+			ret->intval = ret->dblval;
 		}
 		if (('A' <= c && c <= 'Z') || ('a' <= c && c <= 'z') || ('0' <= c && c <= '9')) {
 			error(env, "unknown char: %c", (char) c);
