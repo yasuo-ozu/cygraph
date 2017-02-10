@@ -1,7 +1,6 @@
 #include "cg_common.h"
 
 int token_cmp(cg_env *env, const char *s) {
-	return 
 
 }
 

@@ -57,7 +57,7 @@ cg_token *cg_token_next(cg_env *env) {
 	int c = get(env);
 	while (c != EOF && isspace(c)) c = get(env);
 	if (c == EOF) return NULL;
-	cg_token *ret = calloc(1, sizeof(cg_token));
+	cg_token *ret = (cg_token *) calloc(1, sizeof(cg_token));
 	if ('0' <= c && c <= '9') {
 		int base = 10;
 		long long intval = 0;
@@ -105,7 +105,7 @@ cg_token *cg_token_next(cg_env *env) {
 			error(env, "unknown char: %c", (char) c);
 		}
 	} else {
-		char *s = malloc(256), *p = s;
+		char *s = (char *) malloc(256), *p = s;
 		int i;
 		if (c == '"') {
 			c = cg_file_getchar(env);
@@ -177,6 +177,4 @@ void cg_token_dump(cg_env *env, cg_token *token) {
 	if (token->type == TK_SYMBOL) printf("SYMBOL: %s\n", token->string);
 	if (token->type == TK_STRING) printf("STRING: \"%s\"\n", token->string);
 }
-
-void cg_token_
 

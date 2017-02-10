@@ -1,9 +1,9 @@
-SRCS=cg_*.c
+SRCS=cg_*.cc
 HEADERS=cg_*.h
 
 .PHONY:	clean log
 cygraph: ${SRCS} ${HEADERS} Makefile
-	gcc -o $@ -g3 ${SRCS}
+	g++ -o $@ -g3 ${SRCS}
 clean:
 	rm -f cygraph
 log:

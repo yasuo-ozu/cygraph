@@ -1,7 +1,7 @@
 #include "cg_common.h"
 
 cg_file *cg_file_create(cg_env *env) {
-	cg_file *ret = calloc(1, sizeof(cg_file));
+	cg_file *ret = (cg_file *) calloc(1, sizeof(cg_file));
 	return ret;
 }
 

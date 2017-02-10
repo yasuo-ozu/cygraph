@@ -3,7 +3,14 @@ typedef struct cg_file	 	cg_file;
 typedef struct cg_token 	cg_token;
 typedef struct cg_parse		cg_parse;
 
-typedef enum cg_token_type	cg_token_type;
+enum cg_token_type {
+	TK_IDENT, TK_KEYWORD, TK_SYMBOL,
+	TK_STRING, TK_INTVAL, TK_DBLVAL
+};
+
+typedef enum {
+	FT_FILE, FT_STRING
+} cg_file_type;
 
 // cg_main.c
 struct cg_env {
@@ -13,9 +20,7 @@ struct cg_env {
 
 // cg_file.c
 struct cg_file {
-	enum {
-		FT_FILE, FT_STRING
-	} type;
+	cg_file_type type;
 	char *fname;	// FT_FILE
 	FILE *fp;		// FT_FILE
 	char *value, *loc;	// FT_STRING
@@ -23,11 +28,6 @@ struct cg_file {
 };
 
 // cg_token.c
-enum cg_token_type {
-	TK_IDENT, TK_KEYWORD, TK_SYMBOL,
-	TK_STRING, TK_INTVAL, TK_DBLVAL
-};
-
 struct cg_token {
 	cg_token_type type;
 	char *string;		// TK_STRING, TK_SYMBOL, TK_IDENT, TK_KEYWORD

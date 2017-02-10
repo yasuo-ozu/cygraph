@@ -11,7 +11,7 @@ typedef struct {
 } cg_graphic;
 
 cg_graphic *cg_graphic_init(FILE *fp, const int width, const int height) {
-	cg_graphic *g = calloc(1, sizeof(cg_graphic));
+	cg_graphic *g = (cg_graphic *) calloc(1, sizeof(cg_graphic));
 	g->fp = fp;
 	fprintf(fp, "<svg xmlns=\"http://www.w3.org/2000/svg\""
 			"xmlns:xlink=\"http://www.w3.org/1999/xlink\""
