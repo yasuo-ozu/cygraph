@@ -7,4 +7,4 @@ cygraph: ${SRCS} ${HEADERS} Makefile
 clean:
 	rm -f cygraph
 log:
-	git log --pretty=format:" - %s %n   http://github.com/yasuo-ozu/cygraph/blob/%H/main.c" --since=10hour
+	git log --pretty=format:" - %s %n   http://github.com/yasuo-ozu/cygraph/commit/%H/" --since=10hour
