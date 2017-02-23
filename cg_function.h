@@ -13,4 +13,10 @@ int cg_file_ungetchar(cg_env *env, int c);
 // cg_token.c
 cg_token *cg_token_next(cg_env *env);
 void cg_token_dump(cg_env *env, cg_token *token);
+int cg_token_get_priority(cg_env *env, cg_token *token, int type);
+int cg_token_is_right_association(cg_env *env, cg_token *token);
+
+// cg_parse.c
+Expression *cg_parse_global(cg_env *env);
+
 

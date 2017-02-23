@@ -1,3 +1,11 @@
+// C++ header files
+#include <iostream>
+#include <vector>
+#include <map>
+#include <typeinfo>
+using namespace std;
+
+// C header files
 #include <cctype>
 #include <cmath>
 #include <cstdio>

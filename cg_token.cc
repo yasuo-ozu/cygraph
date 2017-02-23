@@ -1,32 +1,31 @@
 #include "cg_common.h"
 
 const char * const keywords[] = {
-	"int",
-	"for",
-	"while",
+	"plot",
 	NULL
 };
 
 struct {
 	const char * const text;
 	int priority[3];	// PRE, POST, BINARY
+	int is_right;
 } symbols[] = {
-	{NULL,  { 0,  0,  0}},
-	{"++",  { 2,  1,  0}}, {"--",  { 2,  1,  0}}, {"~",   { 2,  0,  0}}, {"!",   { 2,  0,  0}},
-	{"*",   { 0,  0,  4}}, {"/",   { 0,  0,  4}}, {"%",   { 0,  0,  4}},
-	{"+",   { 2,  0,  5}}, {"-",   { 2,  0,  5}},
-	{"<<",  { 0,  0,  6}}, {">>",  { 0,  0,  6}},
-	{"<",   { 0,  0,  7}}, {"<=",  { 0,  0,  7}}, {">",   { 0,  0,  7}}, {">=",  { 0,  0,  7}},
-	{"==",  { 0,  0,  8}}, {"!=",  { 0,  0,  8}},
-	{"&",   { 0,  0,  9}}, {"^",   { 0,  0, 10}}, {"|",   { 0,  0, 11}},
-	{"&&",  { 0,  0, 12}}, {"||",  { 0,  0, 13}},
-	{"=",   { 0,  0, 15}}, {"+=",  { 0,  0, 15}}, {"-=",  { 0,  0, 15}}, {"*=",  { 0,  0, 15}},
-	{"/=",  { 0,  0, 15}}, {"%=",  { 0,  0, 15}}, {"<<=", { 0,  0, 15}}, {">>=", { 0,  0, 15}},
-	{"&=",  { 0,  0, 15}}, {"^=",  { 0,  0, 15}}, {"|=",  { 0,  0, 15}},
-	{",",   { 0,  0, 16}}, {"(",   { 0,  0,  0}}, {")",   { 0,  0,  0}}, {"{",   { 0,  0,  0}},
-	{"}",   { 0,  0,  0}}, {"[",   { 0,  0,  0}}, {"]",   { 0,  0,  0}}, {"?",   { 0,  0,  0}},
-	{":",   { 0,  0,  0}}, {";",   { 0,  0,  0}},
-	{NULL,  { 0,  0,  0}}
+	// operator
+	{"^",  { 0,  0,  1}, 1},
+	{"*",  { 0,  0,  3}, 0}, {"/",  { 0,  0,  3}, 0},
+	{"+",  { 2,  0,  4}, 0}, {"-",  { 2,  0,  4}, 0},
+	{"<",  { 0,  0,  5}, 0}, {">",  { 0,  0,  5}, 0},
+	{"<=",  { 0,  0,  5}, 0}, {">=",  { 0,  0,  5}, 0},
+	{"==",  { 0,  0,  5}, 0}, {"!=",  { 0,  0,  5}, 0},
+	{"!",  { 6,  0,  0}, 0},
+	{"&&",  { 0,  0,  7}, 0}, {"||",  { 0,  0,  8}, 0},
+	{",",  { 0,  0,  9}, 0},
+	{"=",  { 0,  0,  10}, 1},
+
+	// other
+	{"(", {0, 0, 0}, 0}, {")", {0, 0, 0}, 0}, {"{", {0, 0, 0}, 0},
+	{"}", {0, 0, 0}, 0}, {";", {0, 0, 0}, 0},
+	{NULL,  { 0,  0,  0}, 0}
 };
 
 static int get(cg_env *env) {
@@ -178,7 +177,7 @@ cg_token *cg_token_next(cg_env *env) {
 			}
 			*p = '\0';
 		}
-		ret->string = strdup(s);
+		ret->text = strdup(s);
 		free(s);
 	}
 	cg_file_ungetchar(env, c);
@@ -187,11 +186,22 @@ cg_token *cg_token_next(cg_env *env) {
 
 void cg_token_dump(cg_env *env, cg_token *token) {
 	if (token == NULL) return;
-	if (token->type == TK_INTVAL) printf("INT: %ld\n", token->intval);
-	if (token->type == TK_DBLVAL) printf("DBL: %llf\n", token->dblval);
-	if (token->type == TK_IDENT) printf("IDENT: %s\n", token->string);
-	if (token->type == TK_KEYWORD) printf("KEYWORD: %s\n", token->string);
-	if (token->type == TK_SYMBOL) printf("SYMBOL: %s\n", token->string);
-	if (token->type == TK_STRING) printf("STRING: \"%s\"\n", token->string);
+	if (token->type == TK_INTVAL)  printf("INT: %ld\n", token->intval);
+	if (token->type == TK_DBLVAL)  printf("DBL: %llf\n", token->dblval);
+	if (token->type == TK_IDENT)   printf("IDENT: %s\n", token->text);
+	if (token->type == TK_KEYWORD) printf("KEYWORD: %s\n", token->text);
+	if (token->type == TK_SYMBOL)  printf("SYMBOL: %s\n", token->text);
+	if (token->type == TK_STRING)  printf("STRING: \"%s\"\n", token->text);
+}
+
+int cg_token_get_priority(cg_env *env, cg_token *token, int type) {
+	if (token == nullptr) return -1;
+	if (token->type == TK_SYMBOL || token->type == TK_KEYWORD)
+		return symbols[token->symbol].priority[type];
+	else return -1;
+}
+
+int cg_token_is_right_association(cg_env *env, cg_token *token) {
+	return symbols[token->symbol].is_right;
 }
 
