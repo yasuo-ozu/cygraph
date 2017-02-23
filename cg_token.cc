@@ -161,7 +161,7 @@ cg_token *cg_token_next(cg_env *env) {
 			while (c != EOF) {
 				*p = (char) c;
 				p[1] = '\0';
-				for (i = 1; symbols[i].text != NULL; i++) {
+				for (i = 0; symbols[i].text != NULL; i++) {
 					if (strcmp(symbols[i].text, s) == 0) break;
 				}
 				if (symbols[i].text == NULL) break;
@@ -196,7 +196,7 @@ void cg_token_dump(cg_env *env, cg_token *token) {
 
 int cg_token_get_priority(cg_env *env, cg_token *token, int type) {
 	if (token == nullptr) return -1;
-	if (token->type == TK_SYMBOL || token->type == TK_KEYWORD)
+	if (token->type == TK_SYMBOL)
 		return symbols[token->symbol].priority[type];
 	else return -1;
 }

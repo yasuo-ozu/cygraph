@@ -110,3 +110,41 @@ public:
 	}
 };
 
+class VariableExpression : public Expression {
+public:
+	VariableExpression(cg_env *env) {
+		this->env = env;
+	}
+	const char *text;
+	vector<Expression *> args;
+	void dump(int level) override {
+		for (int i = 0; i < level; i++) cout << "\t";
+		cout << this->text;
+		if (this->args.size()) {
+			cout << " (" << endl;
+			for (auto *exp : this->args) {
+				exp->dump(level + 1);
+			}
+			for (int i = 0; i < level; i++) cout << "\t";
+			cout << ")";
+		}
+		cout << endl;
+	}
+};
+
+class CommandExpression : public Expression {
+public:
+	CommandExpression(cg_env *env) {
+		this->env = env;
+	}
+	const char *text;
+	vector<Expression *> args;
+	void dump(int level) override {
+		for (int i = 0; i < level; i++) cout << "\t";
+		cout << this->text << endl;
+		for (auto *exp : this->args) {
+			exp->dump(level + 1);
+		}
+	}
+};
+

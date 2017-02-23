@@ -5,7 +5,8 @@ static inline cg_token *tnext(cg_env *env) {
 }
 
 static int tcmp(cg_env *env, const char *s) {
-	return (env->token->type != TK_INTVAL && env->token->type != TK_DBLVAL) &&
+	return env->token != nullptr &&
+		(env->token->type != TK_INTVAL && env->token->type != TK_DBLVAL) &&
 		strcmp(env->token->text, s) == 0;
 }
 
@@ -27,13 +28,18 @@ static void tcmperrskip(cg_env *env, const char *s) {
 	if (tcmperr(env, s)) tnext(env);
 }
 
-Expression *cg_parse_expression(cg_env *env);
+Expression *cg_parse_expression(cg_env *env, bool isVector);
 CompoundExpression *cg_parse_compound_expression(cg_env *env);
-Expression *cg_parse_expression_internal(cg_env *env, int priority) {
+Expression *cg_parse_expression_internal(cg_env *env, int priority, bool isVector) {
 	Expression *ret = nullptr;
 	if (priority == 0) {
 		if (tcmpskip(env, "plot")) {
-			// ...
+			auto *cmd = new CommandExpression(env);
+			cmd->text = "plot";
+			do {
+				cmd->args.push_back(cg_parse_expression(env, true));
+			} while (tcmpskip(env, ","));
+			ret = cmd;
 		} else if (tcmpskip(env, "(")) {
 			ret = cg_parse_compound_expression(env);
 			tcmperrskip(env, ")");
@@ -42,17 +48,29 @@ Expression *cg_parse_expression_internal(cg_env *env, int priority) {
 			val->values.push_back(env->token->dblval);
 			ret = val;
 			tnext(env);
-		} else { // 変数、定数
-
+		} else if (env->token->type == TK_IDENT) { // 変数、定数
+			auto *val = new VariableExpression(env);
+			val->text = strdup(env->token->text);
+			tnext(env);
+			if (tcmpskip(env, "(")) {
+				do {
+					val->args.push_back(cg_parse_expression(env, true));
+				} while (tcmpskip(env, ","));
+				tcmperrskip(env, ")");
+			}
+			ret = val;
+		} else {
+			error(env, "Wrong token: %s", env->token);
 		}
 	} else if (cg_token_get_priority(env, env->token, 2) == priority) {
 		auto preop = new OperatorExpression(env);
-		preop->child[0] = cg_parse_expression_internal(env, priority);
+		preop->child[0] = cg_parse_expression_internal(env, priority, isVector);
 		preop->op = env->token;
 		ret = preop;
 	} else {
-		ret = cg_parse_expression_internal(env, priority - 1);
-		if (cg_token_get_priority(env, env->token, 2) == priority) {
+		ret = cg_parse_expression_internal(env, priority - 1, isVector);
+		if (cg_token_get_priority(env, env->token, 2) == priority &&
+				(!isVector || !tcmp(env, ","))) {
 			vector<Expression *> exps;
 			vector<cg_token *> ops;
 			exps.push_back(ret);
@@ -60,7 +78,7 @@ Expression *cg_parse_expression_internal(cg_env *env, int priority) {
 			do {
 				auto tkn = env->token;
 				tnext(env);
-				auto exp = cg_parse_expression_internal(env, priority - 1);
+				auto exp = cg_parse_expression_internal(env, priority - 1, isVector);
 				if (is_right) {
 					exps.push_back(exp);
 					ops.push_back(tkn);
@@ -95,14 +113,14 @@ Expression *cg_parse_expression_internal(cg_env *env, int priority) {
 	return ret;
 }
 
-Expression *cg_parse_expression(cg_env *env) {
-	return cg_parse_expression_internal(env, 11);
+Expression *cg_parse_expression(cg_env *env, bool isVector) {
+	return cg_parse_expression_internal(env, 11, isVector);
 }
 
 CompoundExpression *cg_parse_compound_expression(cg_env *env) {
 	CompoundExpression *ret = new CompoundExpression(env);
 	do {
-		ret->expressions.push_back(cg_parse_expression(env));
+		ret->expressions.push_back(cg_parse_expression(env, false));
 		if (env->token == NULL) break;
 		if (tcmp(env, ")")) break;
 	} while (env->token != NULL && !tcmp(env, ")"));
