@@ -19,4 +19,7 @@ int cg_token_is_right_association(cg_env *env, cg_token *token);
 // cg_parse.c
 Expression *cg_parse_global(cg_env *env);
 
+// cg_execute.c
+void cg_execute(cg_env *env, Expression *exp);
+
 

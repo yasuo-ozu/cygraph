@@ -41,6 +41,16 @@ struct cg_token {
 // cg_graphic.c
 #define cg_graphic void
 
+// cg_execute.c
+class Context {
+
+};
+
+class Value {
+public:
+	vector<long double> values;
+}
+
 // cg_parse.c
 class Expression {
 public:
@@ -49,6 +59,7 @@ public:
 		while (level--) cout << "\t";
 		cout << "EXPRESSION" << endl;
 	}
+	virtual *Value evaluate(Context *ctx) = 0;
 protected:
 	cg_env *env;
 };
@@ -72,11 +83,20 @@ public:
 		for (i = 0; i < level; i++) cout << "\t";
 		cout << ")" << endl;
 	}
+
+	Value *evaluate(Context *ctx) override {
+		Value *val = new Value();
+		for (auto *exp: this->expressions) {
+			auto *val2 = exp->evaluate(ctx);
+			copy(val2->begin(), val2->end(), back_inserter(val->values));
+		}
+		return val;
+	}
 };
 
 class ValueExpression : public Expression {
 public:
-	vector<long double> values;
+	Value *value;
 	ValueExpression(cg_env *env) {
 		this->env = env;
 	}
@@ -88,6 +108,10 @@ public:
 			cout << item << " ";
 		}
 		cout << ")" << endl;
+	}
+
+	Value *evaluate(Context *ctx) override {
+		return this->value;
 	}
 };
 
@@ -106,6 +130,15 @@ public:
 		for (i = 0; i < 3; i++) {
 			if (this->child[i] != nullptr)
 				this->child[i]->dump(level + 1);
+		}
+	}
+
+	Value *evaluate(Context *ctx) override {
+		switch (this->op->symbol) {
+			case 0: {	// ^
+				
+			}
+
 		}
 	}
 };
@@ -130,6 +163,10 @@ public:
 		}
 		cout << endl;
 	}
+
+	Value *evaluate(Context *ctx) override {
+		
+	}
 };
 
 class CommandExpression : public Expression {
@@ -145,6 +182,10 @@ public:
 		for (auto *exp : this->args) {
 			exp->dump(level + 1);
 		}
+	}
+
+	Value *evaluate(Context *ctx) override {
+		return new Value();
 	}
 };
 

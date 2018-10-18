@@ -11,6 +11,6 @@ int main(void) {
 	// do {
 		// token = cg_token_next(&env);
 		// cg_token_dump(&env, token);
-		cg_parse_global(&env)->dump(0);
+	cg_execute(&env, cg_parse_global(&env));
 	// } while (token != NULL);
 }
